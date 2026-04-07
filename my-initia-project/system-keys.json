@@ -1,0 +1,46 @@
+{
+  "system_keys": {
+    "validator": {
+      "mnemonic": "swift trophy pact laugh term zone steel suffer monster tunnel alter isolate swear today gorilla achieve frequent close hurdle soft supply warm elegant mimic",
+      "l1_address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd",
+      "l2_address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd"
+    },
+    "bridge_executor": {
+      "mnemonic": "loop shrug feature marriage maximum scrub miss judge talent brick deputy farm return gasp inhale film license tomato horn green addict kiwi hire chronic",
+      "l1_address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8",
+      "l2_address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8"
+    },
+    "output_submitter": {
+      "mnemonic": "buzz boss program room paddle various hub affair smooth wine bleak toss bridge trumpet negative issue nerve sketch divert hawk bike predict bike clown",
+      "l1_address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4",
+      "l2_address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4"
+    },
+    "batch_submitter": {
+      "mnemonic": "wine thought history bread brick result monitor total used noodle lizard cruise chat pistol super tribe slide exact youth wedding walnut clock guard inquiry",
+      "da_address": "init1pf29hz27c6nqfew8kx8elu8t5m7zk77wfjgzvx"
+    },
+    "challenger": {
+      "mnemonic": "child mixed easy grass loop danger lesson bench turtle butter wisdom feature reform grit weapon laptop voice comic soap distance toss wood razor situate",
+      "l1_address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0",
+      "l2_address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0"
+    }
+  },
+  "genesis_accounts": [
+    {
+      "address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd",
+      "coins": "1umin"
+    },
+    {
+      "address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8",
+      "coins": "1umin"
+    },
+    {
+      "address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4",
+      "coins": "1umin"
+    },
+    {
+      "address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0",
+      "coins": "1umin"
+    }
+  ]
+}
