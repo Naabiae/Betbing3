@@ -1,0 +1,17 @@
+import { z } from "zod";
+export declare const ErrorSchema: z.ZodObject<{
+    $schema: z.ZodOptional<z.ZodString>;
+    chain_name: z.ZodOptional<z.ZodString>;
+    module_address: z.ZodString;
+    errors: z.ZodAny;
+}, "strip", z.ZodTypeAny, {
+    module_address: string;
+    $schema?: string | undefined;
+    chain_name?: string | undefined;
+    errors?: any;
+}, {
+    module_address: string;
+    $schema?: string | undefined;
+    chain_name?: string | undefined;
+    errors?: any;
+}>;
