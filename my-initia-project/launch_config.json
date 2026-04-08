@@ -1,0 +1,63 @@
+{
+  "l1_config": {
+    "chain_id": "initiation-2",
+    "rpc_url": "https://rpc.testnet.initia.xyz:443",
+    "gas_prices": "0.015uinit"
+  },
+  "l2_config": {
+    "chain_id": "movegame-1",
+    "denom": "umin",
+    "moniker": "operator"
+  },
+  "op_bridge": {
+    "output_submission_interval": "1m",
+    "output_finalization_period": "168h",
+    "output_submission_start_height": 1,
+    "batch_submission_target": "INITIA",
+    "enable_oracle": false
+  },
+  "system_keys": {
+    "validator": {
+      "l1_address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd",
+      "l2_address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd",
+      "mnemonic": "swift trophy pact laugh term zone steel suffer monster tunnel alter isolate swear today gorilla achieve frequent close hurdle soft supply warm elegant mimic"
+    },
+    "bridge_executor": {
+      "l1_address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8",
+      "l2_address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8",
+      "mnemonic": "loop shrug feature marriage maximum scrub miss judge talent brick deputy farm return gasp inhale film license tomato horn green addict kiwi hire chronic"
+    },
+    "output_submitter": {
+      "l1_address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4",
+      "l2_address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4",
+      "mnemonic": "buzz boss program room paddle various hub affair smooth wine bleak toss bridge trumpet negative issue nerve sketch divert hawk bike predict bike clown"
+    },
+    "batch_submitter": {
+      "da_address": "init1pf29hz27c6nqfew8kx8elu8t5m7zk77wfjgzvx",
+      "mnemonic": "wine thought history bread brick result monitor total used noodle lizard cruise chat pistol super tribe slide exact youth wedding walnut clock guard inquiry"
+    },
+    "challenger": {
+      "l1_address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0",
+      "l2_address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0",
+      "mnemonic": "child mixed easy grass loop danger lesson bench turtle butter wisdom feature reform grit weapon laptop voice comic soap distance toss wood razor situate"
+    }
+  },
+  "genesis_accounts": [
+    {
+      "address": "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd",
+      "coins": "100000000000000000umin"
+    },
+    {
+      "address": "init1gdpcw0gnumg05297gmgckp904jv8snz3xlrme8",
+      "coins": "100000000000000000umin"
+    },
+    {
+      "address": "init1uvgwrvk348vnyj4zvdqw03r43yhqd57fkq87s4",
+      "coins": "100000000000000000umin"
+    },
+    {
+      "address": "init1f6dt0sv4d772ep8muvna7jt4ydgm0j4w6gz8q0",
+      "coins": "100000000000000000umin"
+    }
+  ]
+}

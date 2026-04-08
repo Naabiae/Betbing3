@@ -1,0 +1,64 @@
+import { BcsTypeOptions } from '@mysten/bcs';
+export declare const bcs: {
+    address: (options?: BcsTypeOptions<Uint8Array, Iterable<number>>) => import('@mysten/bcs').BcsType<string, string, "bytes[32]">;
+    object: (options?: BcsTypeOptions<Uint8Array, Iterable<number>>) => import('@mysten/bcs').BcsType<string, string, "bytes[32]">;
+    fixed_point32: (options?: DecimalBcsTypeOptions<string, string | number | bigint>) => import('@mysten/bcs').BcsType<string | number, string | number, "u64">;
+    fixed_point64: (options?: DecimalBcsTypeOptions<string, string | number | bigint>) => import('@mysten/bcs').BcsType<string | number, string | number, "u128">;
+    decimal128: (options?: DecimalBcsTypeOptions<string, string | number | bigint>) => import('@mysten/bcs').BcsType<string | number, string | number, "u128">;
+    decimal256: (options?: DecimalBcsTypeOptions<string, string | number | bigint>) => import('@mysten/bcs').BcsType<string | number, string | number, "u256">;
+    biguint: (options?: BcsTypeOptions<string, string | number | bigint>) => import('@mysten/bcs').BcsType<bigint, string | number | bigint, "vector<u8>">;
+    bigdecimal: (options?: DecimalBcsTypeOptions<string, string | number>) => import('@mysten/bcs').BcsType<string | number, string | number, "vector<u8>">;
+    u8(options?: BcsTypeOptions<number>): import('@mysten/bcs').BcsType<number, number, "u8">;
+    u16(options?: BcsTypeOptions<number>): import('@mysten/bcs').BcsType<number, number, "u16">;
+    u32(options?: BcsTypeOptions<number>): import('@mysten/bcs').BcsType<number, number, "u32">;
+    u64(options?: BcsTypeOptions<string, number | bigint | string>): import('@mysten/bcs').BcsType<string, string | number | bigint, "u64">;
+    u128(options?: BcsTypeOptions<string, number | bigint | string>): import('@mysten/bcs').BcsType<string, string | number | bigint, "u128">;
+    u256(options?: BcsTypeOptions<string, number | bigint | string>): import('@mysten/bcs').BcsType<string, string | number | bigint, "u256">;
+    bool(options?: BcsTypeOptions<boolean>): import('@mysten/bcs').BcsType<boolean, boolean, "bool">;
+    uleb128(options?: BcsTypeOptions<number>): import('@mysten/bcs').BcsType<number, number, string>;
+    bytes<T extends number>(size: T, options?: BcsTypeOptions<Uint8Array, Iterable<number>>): import('@mysten/bcs').BcsType<Uint8Array<ArrayBufferLike>, Iterable<number>, `bytes[${T}]`>;
+    byteVector(options?: BcsTypeOptions<Uint8Array, Iterable<number>>): import('@mysten/bcs').BcsType<Uint8Array<ArrayBufferLike>, Iterable<number>, "vector<u8>">;
+    string(options?: BcsTypeOptions<string>): import('@mysten/bcs').BcsType<string, string, "string">;
+    fixedArray: {
+        <T extends import('@mysten/bcs').BcsType<any>, Name extends string = string>(size: number, type: T, options?: BcsTypeOptions<import('@mysten/bcs').InferBcsType<T>[], Iterable<import('@mysten/bcs').InferBcsInput<T>> & {
+            length: number;
+        }, Name>): import('@mysten/bcs').BcsType<import('@mysten/bcs').InferBcsType<T>[], Iterable<import('@mysten/bcs').InferBcsInput<T>> & {
+            length: number;
+        }, Name>;
+        <T, Input, Name extends string = string>(size: number, type: import('@mysten/bcs').BcsType<T, Input>, options?: BcsTypeOptions<T[], Iterable<Input> & {
+            length: number;
+        }, Name>): import('@mysten/bcs').BcsType<T[], Iterable<Input> & {
+            length: number;
+        }, Name>;
+    };
+    option: {
+        <T extends import('@mysten/bcs').BcsType<any>>(type: T): import('@mysten/bcs').BcsType<import('@mysten/bcs').InferBcsType<T> | null, import('@mysten/bcs').InferBcsInput<T> | null | undefined, `Option<${T["name"]}>`>;
+        <T, Input, Name extends string = string>(type: import('@mysten/bcs').BcsType<T, Input, Name>): import('@mysten/bcs').BcsType<T | null, Input | null | undefined>;
+    };
+    vector: {
+        <T extends import('@mysten/bcs').BcsType<any>, Name extends string = `vector<${T["name"]}>`>(type: T, options?: BcsTypeOptions<import('@mysten/bcs').InferBcsType<T>[], Iterable<import('@mysten/bcs').InferBcsInput<T>> & {
+            length: number;
+        }, Name>): import('@mysten/bcs').BcsType<import('@mysten/bcs').InferBcsType<T>[], Iterable<import('@mysten/bcs').InferBcsInput<T>> & {
+            length: number;
+        }, Name>;
+        <T, Input, Name extends string = string>(type: import('@mysten/bcs').BcsType<T, Input, Name>, options?: BcsTypeOptions<T[], Iterable<Input> & {
+            length: number;
+        }, `vector<${Name}>`>): import('@mysten/bcs').BcsType<T[], Iterable<Input> & {
+            length: number;
+        }, `vector<${Name}>`>;
+    };
+    tuple<const T extends readonly import('@mysten/bcs').BcsType<any, any>[], const Name extends string = `(${import('@mysten/bcs/dist/cjs/types').JoinString<{ [K in keyof T]: T[K] extends import('@mysten/bcs').BcsType<any, any, infer T_1 extends string> ? T_1 : never; }, ", ">})`>(fields: T, options?: BcsTypeOptions<{ -readonly [K_1 in keyof T]: T[K_1] extends import('@mysten/bcs').BcsType<infer T_1, any> ? T_1 : never; }, { [K_1 in keyof T]: T[K_1] extends import('@mysten/bcs').BcsType<any, infer T_1> ? T_1 : never; }, Name>): import('@mysten/bcs').BcsTuple<T, Name>;
+    struct<T extends Record<string, import('@mysten/bcs').BcsType<any>>, const Name extends string = string>(name: Name, fields: T, options?: Omit<BcsTypeOptions<{ [K in keyof T]: T[K] extends import('@mysten/bcs').BcsType<infer U, any> ? U : never; }, { [K in keyof T]: T[K] extends import('@mysten/bcs').BcsType<any, infer U> ? U : never; }>, "name">): import('@mysten/bcs').BcsStruct<T, string>;
+    enum<T extends Record<string, import('@mysten/bcs').BcsType<any> | null>, const Name extends string = string>(name: Name, fields: T, options?: Omit<BcsTypeOptions<import('@mysten/bcs').EnumOutputShape<{ [K in keyof T]: T[K] extends import('@mysten/bcs').BcsType<infer U, any, any> ? U : true; }>, import('@mysten/bcs').EnumInputShape<{ [K in keyof T]: T[K] extends import('@mysten/bcs').BcsType<any, infer U, any> ? U : boolean | object | null; }>, Name>, "name">): import('@mysten/bcs').BcsEnum<T, Name>;
+    map: {
+        <K extends import('@mysten/bcs').BcsType<any>, V extends import('@mysten/bcs').BcsType<any>>(keyType: K, valueType: V): import('@mysten/bcs').BcsType<Map<import('@mysten/bcs').InferBcsType<K>, import('@mysten/bcs').InferBcsType<V>>, Map<import('@mysten/bcs').InferBcsInput<K>, import('@mysten/bcs').InferBcsInput<V>>, `Map<${K["name"]}, ${V["name"]}>`>;
+        <K, V, InputK = K, InputV = V>(keyType: import('@mysten/bcs').BcsType<K, InputK>, valueType: import('@mysten/bcs').BcsType<V, InputV>): import('@mysten/bcs').BcsType<Map<K, V>, Map<InputK, InputV>, `Map<${string}, ${string}>`>;
+    };
+    lazy<T extends import('@mysten/bcs').BcsType<any>>(cb: () => T): T;
+};
+export declare function toLittleEndian(bigint: bigint): Uint8Array;
+export declare function fromLittleEndian(bytes: number[]): bigint;
+type DecimalBcsTypeOptions<T, Input> = BcsTypeOptions<T, Input> & {
+    outputAsNumber?: boolean;
+};
+export {};

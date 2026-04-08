@@ -72,31 +72,39 @@ def get_public_key_bytes(priv_key: ed25519.Ed25519PrivateKey) -> bytes:
     )
 
 # --- API Fetcher ---
+def get_mock_data():
+    return {
+        "matches": [
+            {
+                "id": 101,
+                "homeTeam": {"name": "Arsenal"},
+                "awayTeam": {"name": "Chelsea"},
+                "utcDate": "2026-05-15T20:00:00Z",
+                "status": "FINISHED",
+                "score": {
+                    "fullTime": {"home": 2, "away": 1}
+                }
+            }
+        ]
+    }
+
 def fetch_football_data():
     url = "https://api.football-data.org/v4/matches"
-    headers = {"X-Auth-Token": "DEMO_KEY"}
+    token = os.environ.get("FOOTBALL_DATA_TOKEN")
+    if not token:
+        print("FOOTBALL_DATA_TOKEN not set. Falling back to mock data.")
+        return get_mock_data()
+    headers = {"X-Auth-Token": token}
     try:
-        response = requests.get(url, headers=headers, timeout=3)
+        response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             return response.json()
         else:
-            raise Exception("API Key required or limit reached")
+            print(f"API Error {response.status_code}: {response.text}")
+            return get_mock_data()
     except Exception as e:
         print(f"Falling back to mocked data due to: {e}")
-        return {
-            "matches": [
-                {
-                    "id": 101,
-                    "homeTeam": {"name": "Arsenal"},
-                    "awayTeam": {"name": "Chelsea"},
-                    "utcDate": "2026-05-15T20:00:00Z",
-                    "status": "FINISHED",
-                    "score": {
-                        "fullTime": {"home": 2, "away": 1}
-                    }
-                }
-            ]
-        }
+        return get_mock_data()
 
 def compute_odds(match):
     return [15000, 30000, 40000]
