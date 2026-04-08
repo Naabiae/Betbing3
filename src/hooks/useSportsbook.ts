@@ -1,5 +1,5 @@
 import { useWallet, useAddress } from '@initia/react-wallet-widget';
-import { MsgExecuteJSON, LCDClient } from '@initia/initia.js';
+import { MsgExecuteJSON } from '@initia/initia.js';
 import { useMutation } from '@tanstack/react-query';
 
 export const ADMIN_ADDRESS = "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd";
@@ -9,7 +9,7 @@ export const MODULE_NAME = "sportsbook";
 export const lcdUrl = 'http://localhost:1317'; // Adjust if your local node uses a different REST port
 
 export const useSportsbook = () => {
-  const { requestTx } = useWallet();
+  const { requestInitiaTx } = useWallet();
   const address = useAddress();
 
   const placeBetMutation = useMutation({
@@ -43,7 +43,7 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestTx({
+      const txHash = await requestInitiaTx({
         msgs: [msg],
         memo: "Place Bet via InitBet"
       });
@@ -67,7 +67,7 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestTx({
+      const txHash = await requestInitiaTx({
         msgs: [msg],
         memo: "Claim Payout via InitBet"
       });
@@ -93,7 +93,7 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestTx({
+      const txHash = await requestInitiaTx({
         msgs: [msg],
         memo: "Add Liquidity to House Pool"
       });
@@ -119,7 +119,7 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestTx({
+      const txHash = await requestInitiaTx({
         msgs: [msg],
         memo: "Request Withdraw from House Pool"
       });
