@@ -155,8 +155,15 @@ def main():
 
     # 5. Create Match
     print("Admin creates match...")
+    matches_data = bot.fetch_football_data()
+    match = matches_data.get("matches", [])[0]
+    match_id = match['id']
+    
+    from datetime import datetime
+    utc_date = match.get("utcDate", "2026-05-15T20:00:00Z")
+    # For testing, we must ensure start_time is in the future so the contract accepts the bet.
     start_time = int(time.time()) + 3600
-    match_id = int(time.time()) % 1000000
+    
     tx_execute("create_match", [
         f"u64:{match_id}",
         f"u64:{start_time}",
@@ -165,20 +172,20 @@ def main():
     ], "Validator", admin_addr)
 
     # 6. Update Odds
-    print("Bot updates odds...")
-    new_odds = [18000, 28000, 42000]
+    print(f"Bot updates odds for {match['homeTeam']['name']} vs {match['awayTeam']['name']}...")
+    new_odds = bot.compute_odds(match)
     payload = bot.serialize_update_odds_payload(match_id, 1, new_odds, False)
     sig = priv_key.sign(payload).hex()
     tx_execute("update_odds", [
         f"u64:{match_id}",
         "u8:1",
-        "vector<u64>:18000,28000,42000",
+        f"vector<u64>:{new_odds[0]},{new_odds[1]},{new_odds[2]}",
         "bool:false",
         f"raw_hex:{sig}"
     ], "Validator", admin_addr)
 
     # 7. Place Bet (Bob)
-    print("Bob places a bet on Home (1.80)...")
+    print("Bob places a bet on Home (1.50)...")
     bob_addr = json.loads(run_cmd(["minitiad", "keys", "show", "bob", "--keyring-backend", "test", "--output", "json"]))["address"]
     bob_bal_before = query_balance(bob_addr)
     tx_execute("place_bet", [
@@ -189,13 +196,14 @@ def main():
     ], "bob", admin_addr)
     
     # 8. Settle Match
-    print("Bot settles match (Home wins)...")
-    payload = bot.serialize_batch_settle_payload(match_id, [1], [0])
+    winner_id = bot.compute_winner(match) if match.get('status') == 'FINISHED' else 0
+    print(f"Bot settles match (Winner ID: {winner_id})...")
+    payload = bot.serialize_batch_settle_payload(match_id, [1], [winner_id])
     sig = priv_key.sign(payload).hex()
     tx_execute("batch_settle_match", [
         f"u64:{match_id}",
         "vector<u8>:1",
-        "vector<u8>:0",
+        f"vector<u8>:{winner_id}",
         f"raw_hex:{sig}"
     ], "Validator", admin_addr)
 
