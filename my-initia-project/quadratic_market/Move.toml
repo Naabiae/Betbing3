@@ -1,0 +1,13 @@
+[package]
+name = "quadratic_market"
+version = "0.0.0"
+
+[addresses]
+initia_std = "0x1"
+quadratic_market = "0x426960FF1C4B6AE550E1E1FD3C3A26322BFE4DB9"
+
+[dev-addresses]
+quadratic_market = "0x42"
+
+[dependencies]
+InitiaStdlib = { git = "https://github.com/initia-labs/movevm.git", subdir = "precompile/modules/initia_stdlib", rev = "main" }
