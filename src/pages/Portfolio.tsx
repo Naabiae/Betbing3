@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react';
 import { formatOdds } from '../lib/mockData';
+import { useSportsbook } from '../hooks/useSportsbook';
 
 const MOCK_BETS = [
   {
@@ -34,6 +35,21 @@ const MOCK_BETS = [
 ];
 
 export default function Portfolio() {
+  const { claimPayout, isClaiming } = useSportsbook();
+  const [claimingId, setClaimingId] = React.useState<number | null>(null);
+
+  const handleClaim = async (slipId: number) => {
+    try {
+      setClaimingId(slipId);
+      const txHash = await claimPayout(slipId);
+      alert(`Claimed successfully! Tx Hash: ${txHash}`);
+    } catch (error: any) {
+      console.error("Claim failed:", error);
+      alert(`Failed to claim payout: ${error?.message || 'Unknown error'}`);
+    } finally {
+      setClaimingId(null);
+    }
+  };
   return (
     <div className="min-h-screen pb-32">
       <div className="flex justify-between items-end mb-8">
@@ -90,8 +106,13 @@ export default function Portfolio() {
                   <td className="p-4">
                     <StatusBadge status={bet.status} />
                     {bet.status === 'WON' && (
-                      <button className="mt-2 text-xs bg-green-400 text-black font-black uppercase px-3 py-1 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-y-px hover:translate-x-px hover:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all">
-                        Claim
+                      <button 
+                        onClick={() => handleClaim(bet.id)}
+                        disabled={isClaiming && claimingId === bet.id}
+                        className="mt-2 text-xs bg-green-400 text-black font-black uppercase px-3 py-1 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-y-px hover:translate-x-px hover:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isClaiming && claimingId === bet.id && <Loader2 className="w-3 h-3 animate-spin" />}
+                        <span>Claim</span>
                       </button>
                     )}
                   </td>

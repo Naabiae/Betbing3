@@ -1,21 +1,45 @@
 import React from 'react';
 import { useBetSlipStore } from '../store/useBetSlipStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Receipt, CheckCircle } from 'lucide-react';
+import { X, Receipt, CheckCircle, Loader2 } from 'lucide-react';
 import { formatOdds } from '../lib/mockData';
+import { useSportsbook } from '../hooks/useSportsbook';
+import { useAddress } from '@initia/react-wallet-widget';
 
 export default function BetSlip() {
   const { selections, stake, setStake, removeSelection, clear, isOpen, setIsOpen } = useBetSlipStore();
+  const { placeBet, isPlacingBet } = useSportsbook();
+  const address = useAddress();
 
   if (selections.length === 0) return null;
 
   const totalOdds = selections.reduce((acc, s) => acc * s.odds, 1);
   const potentialPayout = stake * totalOdds;
 
-  const handlePlaceBet = () => {
-    // Integrate Initia TX here
-    alert(`Placing bet: ${stake} INIT to win ${potentialPayout.toFixed(2)} INIT`);
-    clear();
+  const handlePlaceBet = async () => {
+    if (!address) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+
+    try {
+      const matchIds = selections.map(s => s.match_id);
+      const marketIds = selections.map(s => s.market_id);
+      const outcomeIds = selections.map(s => s.outcome_id);
+
+      const txHash = await placeBet({
+        matchIds,
+        marketIds,
+        outcomeIds,
+        stakeAmount: stake,
+      });
+
+      alert(`Bet placed successfully! Tx Hash: ${txHash}`);
+      clear();
+    } catch (error: any) {
+      console.error("Failed to place bet:", error);
+      alert(`Failed to place bet: ${error?.message || 'Unknown error'}`);
+    }
   };
 
   return (
@@ -95,10 +119,20 @@ export default function BetSlip() {
 
               <button 
                 onClick={handlePlaceBet}
-                className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-widest py-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,255,102,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,255,102,1)] transition-all flex items-center justify-center space-x-2"
+                disabled={isPlacingBet || !address}
+                className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-widest py-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,255,102,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,255,102,1)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CheckCircle className="w-6 h-6" />
-                <span>Place Bet</span>
+                {isPlacingBet ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-6 h-6" />
+                    <span>{address ? 'Place Bet' : 'Connect Wallet'}</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

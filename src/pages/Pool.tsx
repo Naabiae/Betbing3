@@ -1,18 +1,51 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Layers, ArrowDownUp, AlertTriangle } from 'lucide-react';
+import { Layers, ArrowDownUp, AlertTriangle, Loader2 } from 'lucide-react';
+import { useSportsbook } from '../hooks/useSportsbook';
+import { useAddress } from '@initia/react-wallet-widget';
 
 export default function Pool() {
-  const [amount, setAmount] = useState<string>('');
+  const [depositAmount, setDepositAmount] = useState<string>('');
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('');
+  
+  const address = useAddress();
+  const { 
+    addLiquidity, 
+    isAddingLiquidity, 
+    requestWithdraw, 
+    isRequestingWithdraw 
+  } = useSportsbook();
 
-  const handleDeposit = () => {
-    alert(`Depositing ${amount} INIT to House Pool`);
-    setAmount('');
+  const handleDeposit = async () => {
+    if (!address) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+    
+    try {
+      const txHash = await addLiquidity(Number(depositAmount));
+      alert(`Deposited successfully! Tx Hash: ${txHash}`);
+      setDepositAmount('');
+    } catch (error: any) {
+      console.error("Deposit failed:", error);
+      alert(`Failed to deposit: ${error?.message || 'Unknown error'}`);
+    }
   };
 
-  const handleWithdraw = () => {
-    alert(`Requesting withdrawal of ${amount} INIT from House Pool`);
-    setAmount('');
+  const handleWithdraw = async () => {
+    if (!address) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+
+    try {
+      const txHash = await requestWithdraw(Number(withdrawAmount));
+      alert(`Withdrawal requested successfully! Tx Hash: ${txHash}`);
+      setWithdrawAmount('');
+    } catch (error: any) {
+      console.error("Withdrawal request failed:", error);
+      alert(`Failed to request withdrawal: ${error?.message || 'Unknown error'}`);
+    }
   };
 
   return (
@@ -59,14 +92,14 @@ export default function Pool() {
             <div className="relative">
               <input 
                 type="number" 
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
                 placeholder="0.00"
                 className="w-full bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white p-4 font-mono font-black text-2xl focus:outline-none focus:ring-4 focus:ring-green-400"
               />
               <button 
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black uppercase bg-black text-white dark:bg-white dark:text-black px-2 py-1"
-                onClick={() => setAmount('1000')}
+                onClick={() => setDepositAmount('1000')}
               >
                 MAX
               </button>
@@ -75,10 +108,11 @@ export default function Pool() {
 
           <button 
             onClick={handleDeposit}
-            disabled={!amount || Number(amount) <= 0}
-            className="w-full bg-green-400 text-black font-black uppercase tracking-widest py-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!depositAmount || Number(depositAmount) <= 0 || isAddingLiquidity}
+            className="w-full flex justify-center items-center space-x-2 bg-green-400 text-black font-black uppercase tracking-widest py-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Deposit INIT
+            {isAddingLiquidity && <Loader2 className="w-5 h-5 animate-spin" />}
+            <span>Deposit INIT</span>
           </button>
         </div>
 
@@ -99,23 +133,32 @@ export default function Pool() {
           <div className="space-y-4 mb-8">
             <div className="flex justify-between text-sm font-bold text-zinc-500">
               <span>Your LP Shares</span>
-              <span className="font-mono text-black dark:text-white">0.00 hINIT</span>
+              <span className="font-mono text-black dark:text-white">1000.00 hINIT</span>
             </div>
             <div className="relative">
               <input 
                 type="number" 
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
                 placeholder="0.00"
-                disabled
-                className="w-full bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-700 p-4 font-mono font-black text-2xl focus:outline-none opacity-50 cursor-not-allowed text-zinc-400"
+                className="w-full bg-zinc-100 dark:bg-zinc-800 border-2 border-black dark:border-white p-4 font-mono font-black text-2xl focus:outline-none focus:ring-4 focus:ring-yellow-400"
               />
+              <button 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black uppercase bg-black text-white dark:bg-white dark:text-black px-2 py-1"
+                onClick={() => setWithdrawAmount('1000')}
+              >
+                MAX
+              </button>
             </div>
           </div>
 
           <button 
-            disabled
-            className="w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-500 font-black uppercase tracking-widest py-4 border-4 border-zinc-300 dark:border-zinc-700 cursor-not-allowed transition-all"
+            onClick={handleWithdraw}
+            disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || isRequestingWithdraw}
+            className="w-full flex justify-center items-center space-x-2 bg-yellow-400 text-black font-black uppercase tracking-widest py-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Request Withdrawal
+            {isRequestingWithdraw && <Loader2 className="w-5 h-5 animate-spin" />}
+            <span>Request Withdrawal</span>
           </button>
         </div>
       </div>
