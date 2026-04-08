@@ -74,8 +74,11 @@ def get_public_key_bytes(priv_key: ed25519.Ed25519PrivateKey) -> bytes:
 # --- API Fetcher ---
 def fetch_football_data():
     url = "https://api.football-data.org/v4/matches"
-    headers = {"X-Auth-Token": "DEMO_KEY"}
     try:
+        token = os.getenv("FOOTBALL_DATA_TOKEN")
+        if not token:
+            raise Exception("FOOTBALL_DATA_TOKEN not set")
+        headers = {"X-Auth-Token": token}
         response = requests.get(url, headers=headers, timeout=3)
         if response.status_code == 200:
             return response.json()
