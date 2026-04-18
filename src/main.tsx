@@ -10,7 +10,7 @@ const queryClient = new QueryClient()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <WalletWidgetProvider customTheme={{ colors: { primary: '#00ff66' } }}>
+      <WalletWidgetProvider theme="dark">
         <App />
       </WalletWidgetProvider>
     </QueryClientProvider>
