@@ -1,57 +1,34 @@
-# React + TypeScript + Vite
+# InitBet
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An onchain sportsbook / prediction market built as a Move appchain on Initia. Users place 1X2 bets (Home/Draw/Away) against a shared House Pool, and LPs can provide liquidity to become the counterparty to every bet.
 
-Currently, two official plugins are available:
+## Initia Hackathon Submission
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Project Name**: InitBet
 
-## Expanding the ESLint configuration
+### Project Overview
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+InitBet is a trust-minimized sportsbook where match odds updates and match settlement are verified on-chain via Ed25519 signatures. It’s designed as a local Initia rollup demo (Move VM) with a React frontend that supports wallet connection, transactions, and native Initia UX.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### Implementation Detail
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **The Custom Implementation**: A Move sportsbook contract with a House Pool (LP shares), signed odds updates, and signed batch settlement, plus a frontend that builds and submits Move `execute` messages for betting + LP flows.
+- **The Native Feature**: InterwovenKit integration with AutoSign (session-based signing), plus Bridge and `.init` username support surfaced via the InterwovenKit wallet UI.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### How to Run Locally
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. Start your local Initia rollup (Move VM) so it exposes:
+   - RPC: `http://localhost:26657`
+   - LCD: `http://localhost:1317`
+   - Chain ID: `movegame-1`
+2. Deploy and seed the sportsbook module on your local chain:
+   - `python my-initia-project/e2e_test.py`
+3. Install frontend deps and start the app:
+   - `pnpm install`
+   - `pnpm dev`
+4. Open the app, connect a wallet via InterwovenKit, enable AutoSign, then place a bet and/or provide liquidity.
+
+## Code Pointers
+
+- Core Move logic: [sportsbook.move](file:///workspace/my-initia-project/quadratic_market/sources/sportsbook.move)
+- Frontend wallet + native feature entry points: [App.tsx](file:///workspace/src/App.tsx) and [Providers.tsx](file:///workspace/src/Providers.tsx)

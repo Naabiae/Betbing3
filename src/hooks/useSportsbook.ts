@@ -1,16 +1,19 @@
-import { useWallet, useAddress } from '@initia/react-wallet-widget';
+import { useInterwovenKit } from '@initia/interwovenkit-react';
 import { MsgExecuteJSON } from '@initia/initia.js';
 import { useMutation } from '@tanstack/react-query';
 
 export const ADMIN_ADDRESS = "init1gf5kplcufd4w258pu87ncw3xxg4lundeclvhgd";
 export const MODULE_NAME = "sportsbook";
 
-// Note: For local testing, ensure your wallet is connected to the local network (movegame-1)
 export const lcdUrl = 'http://localhost:1317'; // Adjust if your local node uses a different REST port
 
+const toEncodeObject = (msg: any) => ({
+  typeUrl: msg.packAny().typeUrl,
+  value: msg.toProto(),
+});
+
 export const useSportsbook = () => {
-  const { requestInitiaTx } = useWallet();
-  const address = useAddress();
+  const { initiaAddress, requestTxSync } = useInterwovenKit();
 
   const placeBetMutation = useMutation({
     mutationFn: async ({
@@ -24,13 +27,13 @@ export const useSportsbook = () => {
       outcomeIds: number[];
       stakeAmount: number;
     }) => {
-      if (!address) throw new Error("Wallet not connected");
+      if (!initiaAddress) throw new Error("Wallet not connected");
 
       // umin is 6 decimals, so multiply stake by 1,000,000
       const stakeInUmin = (stakeAmount * 1_000_000).toString();
 
       const msg = new MsgExecuteJSON(
-        address,
+        initiaAddress,
         ADMIN_ADDRESS, // Contract is deployed to the admin's address
         MODULE_NAME,
         "place_bet",
@@ -43,8 +46,8 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestInitiaTx({
-        msgs: [msg],
+      const txHash = await requestTxSync({
+        messages: [toEncodeObject(msg)],
         memo: "Place Bet via InitBet"
       });
 
@@ -54,10 +57,10 @@ export const useSportsbook = () => {
 
   const claimPayoutMutation = useMutation({
     mutationFn: async (slipId: number) => {
-      if (!address) throw new Error("Wallet not connected");
+      if (!initiaAddress) throw new Error("Wallet not connected");
 
       const msg = new MsgExecuteJSON(
-        address,
+        initiaAddress,
         ADMIN_ADDRESS,
         MODULE_NAME,
         "claim_payout",
@@ -67,8 +70,8 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestInitiaTx({
-        msgs: [msg],
+      const txHash = await requestTxSync({
+        messages: [toEncodeObject(msg)],
         memo: "Claim Payout via InitBet"
       });
 
@@ -78,12 +81,12 @@ export const useSportsbook = () => {
 
   const addLiquidityMutation = useMutation({
     mutationFn: async (amount: number) => {
-      if (!address) throw new Error("Wallet not connected");
+      if (!initiaAddress) throw new Error("Wallet not connected");
 
       const amountInUmin = (amount * 1_000_000).toString();
 
       const msg = new MsgExecuteJSON(
-        address,
+        initiaAddress,
         ADMIN_ADDRESS,
         MODULE_NAME,
         "add_liquidity",
@@ -93,8 +96,8 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestInitiaTx({
-        msgs: [msg],
+      const txHash = await requestTxSync({
+        messages: [toEncodeObject(msg)],
         memo: "Add Liquidity to House Pool"
       });
 
@@ -104,12 +107,12 @@ export const useSportsbook = () => {
 
   const requestWithdrawMutation = useMutation({
     mutationFn: async (shares: number) => {
-      if (!address) throw new Error("Wallet not connected");
+      if (!initiaAddress) throw new Error("Wallet not connected");
 
       const sharesInUmin = (shares * 1_000_000).toString();
 
       const msg = new MsgExecuteJSON(
-        address,
+        initiaAddress,
         ADMIN_ADDRESS,
         MODULE_NAME,
         "request_withdraw",
@@ -119,8 +122,8 @@ export const useSportsbook = () => {
         ]
       );
 
-      const txHash = await requestInitiaTx({
-        msgs: [msg],
+      const txHash = await requestTxSync({
+        messages: [toEncodeObject(msg)],
         memo: "Request Withdraw from House Pool"
       });
 

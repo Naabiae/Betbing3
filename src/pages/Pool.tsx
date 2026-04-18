@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Layers, ArrowDownUp, AlertTriangle, Loader2 } from 'lucide-react';
 import { useSportsbook } from '../hooks/useSportsbook';
-import { useAddress } from '@initia/react-wallet-widget';
+import { useInterwovenKit } from '@initia/interwovenkit-react';
 
 export default function Pool() {
   const [depositAmount, setDepositAmount] = useState<string>('');
   const [withdrawAmount, setWithdrawAmount] = useState<string>('');
   
-  const address = useAddress();
+  const { initiaAddress } = useInterwovenKit();
   const { 
     addLiquidity, 
     isAddingLiquidity, 
@@ -17,7 +17,7 @@ export default function Pool() {
   } = useSportsbook();
 
   const handleDeposit = async () => {
-    if (!address) {
+    if (!initiaAddress) {
       alert("Please connect your wallet first.");
       return;
     }
@@ -33,7 +33,7 @@ export default function Pool() {
   };
 
   const handleWithdraw = async () => {
-    if (!address) {
+    if (!initiaAddress) {
       alert("Please connect your wallet first.");
       return;
     }
