@@ -14,6 +14,7 @@
     "@initia/initia.js": "^1.1.0",
     "@initia/react-wallet-widget": "^1.9.8",
     "@tanstack/react-query": "^5.96.2",
+    "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.511.0",

@@ -71,9 +71,9 @@ export default function BetSlip() {
             {/* Selections */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50 dark:bg-zinc-950">
               {selections.map((s) => (
-                <div key={`${s.match_id}-${s.outcome_id}`} className="bg-white dark:bg-zinc-900 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,1)] relative">
+                <div key={`${s.match_id}-${s.market_id}-${s.outcome_id}`} className="bg-white dark:bg-zinc-900 p-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,1)] relative">
                   <button 
-                    onClick={() => removeSelection(s.match_id)}
+                    onClick={() => removeSelection(s.match_id, s.market_id)}
                     className="absolute top-2 right-2 text-zinc-400 hover:text-red-500 transition-colors"
                   >
                     <X className="w-5 h-5" />

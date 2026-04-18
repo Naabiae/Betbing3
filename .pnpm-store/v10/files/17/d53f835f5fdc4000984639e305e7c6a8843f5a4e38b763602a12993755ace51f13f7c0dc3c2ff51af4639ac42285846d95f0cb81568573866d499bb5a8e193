@@ -1,8 +1,0 @@
-export declare function getProxyImage(url?: string): string | undefined;
-interface NFTImageParams {
-    chainId: string;
-    collection: string;
-    object: string;
-}
-export declare function getNFTImage({ chainId, collection, object }: NFTImageParams): string;
-export {};

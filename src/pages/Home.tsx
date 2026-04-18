@@ -1,17 +1,17 @@
 import React from 'react';
 import { useBetSlipStore } from '../store/useBetSlipStore';
 import { MOCK_MATCHES, formatOdds } from '../lib/mockData';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Activity, Check, X, ShieldAlert } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { TrendingUp, Activity, Check, ShieldAlert } from 'lucide-react';
 import BetSlip from '../components/BetSlip';
 
 export default function Home() {
   const { addSelection, selections } = useBetSlipStore();
 
-  const handleOddsClick = (match: any, outcomeId: number, label: string, odds: number) => {
+  const handleOddsClick = (match: any, marketId: number, outcomeId: number, label: string, odds: number) => {
     addSelection({
       match_id: match.id,
-      market_id: 1, // Standard 1X2 market
+      market_id: marketId,
       outcome_id: outcomeId,
       odds,
       label,
@@ -92,32 +92,29 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Odds Buttons */}
-            <div className="grid grid-cols-3 gap-4">
-              <OddsButton 
-                match={match} 
-                outcomeId={0} 
-                label="HOME" 
-                odds={match.odds.home} 
-                onClick={handleOddsClick}
-                isSelected={selections.some(s => s.match_id === match.id && s.outcome_id === 0)}
-              />
-              <OddsButton 
-                match={match} 
-                outcomeId={1} 
-                label="DRAW" 
-                odds={match.odds.draw} 
-                onClick={handleOddsClick}
-                isSelected={selections.some(s => s.match_id === match.id && s.outcome_id === 1)}
-              />
-              <OddsButton 
-                match={match} 
-                outcomeId={2} 
-                label="AWAY" 
-                odds={match.odds.away} 
-                onClick={handleOddsClick}
-                isSelected={selections.some(s => s.match_id === match.id && s.outcome_id === 2)}
-              />
+            {/* Markets Container */}
+            <div className="space-y-6">
+              {match.markets.map((market) => (
+                <div key={market.id}>
+                  <div className="text-xs font-bold tracking-widest text-zinc-500 uppercase mb-2">
+                    {market.name}
+                  </div>
+                  <div className={`grid gap-4 ${market.outcomes.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    {market.outcomes.map((outcome) => (
+                      <OddsButton 
+                        key={outcome.id}
+                        match={match}
+                        marketId={market.id}
+                        outcomeId={outcome.id} 
+                        label={outcome.label} 
+                        odds={outcome.odds} 
+                        onClick={handleOddsClick}
+                        isSelected={selections.some(s => s.match_id === match.id && s.market_id === market.id && s.outcome_id === outcome.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         ))}
@@ -128,10 +125,10 @@ export default function Home() {
   );
 }
 
-function OddsButton({ match, outcomeId, label, odds, onClick, isSelected }: any) {
+function OddsButton({ match, marketId, outcomeId, label, odds, onClick, isSelected }: any) {
   return (
     <button
-      onClick={() => onClick(match, outcomeId, label, odds)}
+      onClick={() => onClick(match, marketId, outcomeId, label, odds)}
       className={`
         flex flex-col items-center py-3 px-2 border-2 transition-all
         ${isSelected 

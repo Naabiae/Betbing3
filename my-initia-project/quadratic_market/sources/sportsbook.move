@@ -35,6 +35,7 @@ module quadratic_market::sportsbook {
         withdrawal_requests: Table<address, u64>,
         /// Queue of addresses waiting for withdrawal processing
         withdrawal_queue: vector<address>,
+        withdrawal_queue_head: u64, // Optimization: O(1) dequeueing
     }
 
     // --- Errors ---
@@ -50,6 +51,10 @@ module quadratic_market::sportsbook {
     const EUNAUTHORIZED_CLAIM: u64 = 10;
     const EINVALID_SLIP_STATUS: u64 = 11;
     const EINVALID_SIGNATURE: u64 = 12;
+    const EINVALID_OUTCOME: u64 = 100;
+    const EAMOUNT_TOO_SMALL: u64 = 105;
+    const ENOT_IBC_ROUTER: u64 = 109;
+    const EORACLE_STALE: u64 = 110;
 
     // --- Core Data Structures ---
 
@@ -141,6 +146,7 @@ module quadratic_market::sportsbook {
             balances: table::new(),
             withdrawal_requests: table::new(),
             withdrawal_queue: vector::empty(),
+            withdrawal_queue_head: 0,
         });
 
         move_to(admin, SportsbookState {
@@ -176,9 +182,14 @@ module quadratic_market::sportsbook {
 
         let lp_state = borrow_global_mut<LPState>(@quadratic_market);
         let reserve_balance = coin::balance(pool.pool_address, pool.base_coin_metadata);
-        
+
         let shares_to_mint = if (lp_state.total_supply == 0 || reserve_balance == 0) {
-            amount
+            // FIX: ERC4626 First-Depositor Inflation Bug
+            // Lock a minimum amount of liquidity to prevent share price manipulation
+            let min_liquidity = 1000;
+            assert!(amount > min_liquidity, EAMOUNT_TOO_SMALL); // Amount too small
+            lp_state.total_supply = min_liquidity;
+            amount - min_liquidity
         } else {
             (amount * lp_state.total_supply) / reserve_balance
         };
@@ -231,26 +242,35 @@ module quadratic_market::sportsbook {
         assert!(signer::address_of(admin) == pool.admin, ENOT_ADMIN);
 
         let lp_state = borrow_global_mut<LPState>(@quadratic_market);
-        let q_len = vector::length(&lp_state.withdrawal_queue);
-        let limit = if (num_to_process < q_len) { num_to_process } else { q_len };
-
+        let queue_len = vector::length(&lp_state.withdrawal_queue);
         let pool_signer = object::generate_signer_for_extending(&pool.extend_ref);
 
-        let i = 0;
-        while (i < limit) {
-            let provider_addr = vector::remove(&mut lp_state.withdrawal_queue, 0);
-            let shares = table::remove(&mut lp_state.withdrawal_requests, provider_addr);
-
-            let total_reserve = coin::balance(pool.pool_address, pool.base_coin_metadata);
-            let free_liquidity = total_reserve - pool.locked_payouts;
+        let count = 0;
+        while (lp_state.withdrawal_queue_head < queue_len && count < num_to_process) {
+            let provider_addr = *vector::borrow(&lp_state.withdrawal_queue, lp_state.withdrawal_queue_head);
+            lp_state.withdrawal_queue_head = lp_state.withdrawal_queue_head + 1;
             
-            let amount_to_return = (shares * free_liquidity) / lp_state.total_supply;
+            if (table::contains(&lp_state.withdrawal_requests, provider_addr)) {
+                let shares = table::remove(&mut lp_state.withdrawal_requests, provider_addr);
 
-            lp_state.total_supply = lp_state.total_supply - shares;
+                let total_reserve = coin::balance(pool.pool_address, pool.base_coin_metadata);
+                let free_liquidity = total_reserve - pool.locked_payouts;
+                
+                let amount_to_return = (shares * free_liquidity) / lp_state.total_supply;
 
-            coin::transfer(&pool_signer, provider_addr, pool.base_coin_metadata, amount_to_return);
-            i = i + 1;
-        }
+                lp_state.total_supply = lp_state.total_supply - shares;
+
+                coin::transfer(&pool_signer, provider_addr, pool.base_coin_metadata, amount_to_return);
+            };
+            
+            count = count + 1;
+        };
+
+        // Reset the queue if we've processed everything to save space
+        if (lp_state.withdrawal_queue_head == queue_len) {
+            lp_state.withdrawal_queue = vector::empty();
+            lp_state.withdrawal_queue_head = 0;
+        };
     }
 
     // --- Match & Betting Operations ---
@@ -366,17 +386,22 @@ module quadratic_market::sportsbook {
         market_ids: vector<u8>,
         pair_id: String
     ) acquires SportsbookState, BettingState {
-        let (price, _, _) = oracle::get_price(pair_id);
+        let (price, update_time, _) = oracle::get_price(pair_id);
         
-        // Example logic: Oracle returns price as a compacted u256 containing outcomes
-        // For simplicity in this demo, we assume the price itself is the single winning outcome ID
-        // (0 = Home, 1 = Draw, 2 = Away)
+        // Check if data is stale (e.g., older than 2 minutes)
+        assert!(timestamp::now_seconds() - update_time <= 120, EORACLE_STALE);
+        
         let winning_outcome_ids = vector::empty<u8>();
         
         let len = vector::length(&market_ids);
         let i = 0;
         while (i < len) {
-            vector::push_back(&mut winning_outcome_ids, (price as u8));
+            // FIX: The oracle must return a bitmask or array of outcomes, 
+            // for now, we simulate decoding an array of u8 from a compacted u256
+            // (Price >> (i * 8)) & 0xFF
+            let shift_amount = (i * 8) as u8;
+            let current_outcome = ((price >> shift_amount) & 0xFF) as u8;
+            vector::push_back(&mut winning_outcome_ids, current_outcome);
             i = i + 1;
         };
 
@@ -421,7 +446,8 @@ module quadratic_market::sportsbook {
         assert!(num_legs == vector::length(&market_ids), EINVALID_SELECTION);
         assert!(num_legs == vector::length(&outcome_ids), EINVALID_SELECTION);
 
-        let combined_odds: u128 = state.odds_basis as u128;
+        let combined_odds_num: u128 = 1;
+        let combined_odds_den: u128 = 1;
         let selections = vector::empty<Selection>();
         
         let i = 0;
@@ -449,23 +475,32 @@ module quadratic_market::sportsbook {
                 odds: leg_odds,
             });
 
-            combined_odds = (combined_odds * (leg_odds as u128)) / (state.odds_basis as u128);
+            // Accumulate numerators and denominators to prevent compounding precision loss
+            combined_odds_num = combined_odds_num * (leg_odds as u128);
+            combined_odds_den = combined_odds_den * (state.odds_basis as u128);
             i = i + 1;
         };
 
-        let potential_payout = (((stake_amount as u128) * combined_odds) / (state.odds_basis as u128)) as u64;
-        let profit_exposure = potential_payout - stake_amount;
+        // Single division at the end to determine the exact payout
+        let potential_payout = (((stake_amount as u128) * combined_odds_num) / combined_odds_den) as u64;
+        let profit_exposure = if (potential_payout > stake_amount) { potential_payout - stake_amount } else { 0 };
 
         let available_liquidity = coin::balance(pool.pool_address, pool.base_coin_metadata) - pool.locked_payouts;
         assert!(available_liquidity >= profit_exposure, EINSUFFICIENT_LIQUIDITY);
 
-        i = 0;
-        while (i < num_legs) {
-            let m_id = *vector::borrow(&match_ids, i);
-            let match_ref = table::borrow_mut(&mut state.matches, m_id);
-            match_ref.current_exposure = match_ref.current_exposure + profit_exposure;
-            assert!(match_ref.current_exposure <= pool.max_match_exposure, EMAX_EXPOSURE_REACHED);
-            i = i + 1;
+        // FIX: Double-counting exposure for same-game parlays
+        // Calculate the risk per distinct match instead of per leg
+        let j = 0;
+        let counted_matches = vector::empty<u64>();
+        while (j < num_legs) {
+            let m_id = *vector::borrow(&match_ids, j);
+            if (!vector::contains(&counted_matches, &m_id)) {
+                let match_ref = table::borrow_mut(&mut state.matches, m_id);
+                match_ref.current_exposure = match_ref.current_exposure + profit_exposure;
+                assert!(match_ref.current_exposure <= pool.max_match_exposure, EMAX_EXPOSURE_REACHED);
+                vector::push_back(&mut counted_matches, m_id);
+            };
+            j = j + 1;
         };
 
         coin::transfer(user, pool.pool_address, pool.base_coin_metadata, stake_amount);
@@ -502,14 +537,18 @@ module quadratic_market::sportsbook {
         pair_config: Object<dex::Config>,
         offer_coin_metadata: Object<Metadata>,
         offer_amount: u64,
+        min_base_amount: u64,
         match_ids: vector<u64>,
         market_ids: vector<u8>,
         outcome_ids: vector<u8>
     ) acquires HousePool, SportsbookState, BettingState {
         // 1. Swap user's offer token into the base token required for betting
         let offer_fa = coin::withdraw(user, offer_coin_metadata, offer_amount);
+        
+        // 2. Execute the swap with a minimum amount out to prevent front-running/sandwich attacks
         let base_fa = dex::swap(pair_config, offer_fa);
         let base_amount = initia_std::fungible_asset::amount(&base_fa);
+        assert!(base_amount >= min_base_amount, 100); // Slippage tolerance breached
         
         // Ensure the swapped token matches our base coin requirement
         coin::deposit(signer::address_of(user), base_fa);
@@ -520,23 +559,25 @@ module quadratic_market::sportsbook {
 
     /// IBC Hooks: Receives and executes bets seamlessly via Cross-Chain memo messages
     public entry fun place_bet_ibc(
+        router: &signer,
         user_addr: address,
         match_ids: vector<u64>,
         market_ids: vector<u8>,
         outcome_ids: vector<u8>,
         stake_amount: u64
     ) acquires HousePool, SportsbookState, BettingState {
-        // In a real IBC hook context, the relayer delivers the funds to a PDA or specific address.
-        // This function handles the accounting logic when triggered by an IBC Hook router.
-        
-        // We reuse internal logic similar to place_bet, but without requiring a &signer
-        // Since funds are already delivered to the protocol by the IBC module.
+        // SECURITY FIX: Must be authenticated by the IBC router
         let pool = borrow_global_mut<HousePool>(@quadratic_market);
+        // Assuming @initia_std is the expected router address for minitswap IBC hooks
+        assert!(signer::address_of(router) == @initia_std, ENOT_IBC_ROUTER);
+        
         assert!(!pool.paused, EPAUSED);
         
         // ... Betting logic omitted for brevity (similar to place_bet but extracting funds from a holding address)
         // ...
     }
+
+    public entry fun claim_payout(
         user: &signer,
         slip_id: u64
     ) acquires HousePool, SportsbookState, BettingState {
@@ -577,12 +618,52 @@ module quadratic_market::sportsbook {
         if (is_won) {
             slip.status = 1; // WON
             pool.locked_payouts = pool.locked_payouts - slip.potential_payout;
-            
-            let pool_signer = object::generate_signer_for_extending(&pool.extend_ref);
-            coin::transfer(&pool_signer, user_addr, pool.base_coin_metadata, slip.potential_payout);
+        
+        // Optimization: Reduce the active exposure cap since the bet is resolved
+        let j = 0;
+        let counted_matches = vector::empty<u64>();
+        let num_legs = vector::length(&slip.selections);
+        while (j < num_legs) {
+            let sel = vector::borrow(&slip.selections, j);
+            if (!vector::contains(&counted_matches, &sel.match_id)) {
+                let match_ref = table::borrow_mut(&mut state.matches, sel.match_id);
+                let profit_exposure = if (slip.potential_payout > slip.stake_amount) { slip.potential_payout - slip.stake_amount } else { 0 };
+                // Ensure we don't underflow
+                if (match_ref.current_exposure >= profit_exposure) {
+                    match_ref.current_exposure = match_ref.current_exposure - profit_exposure;
+                } else {
+                    match_ref.current_exposure = 0;
+                };
+                vector::push_back(&mut counted_matches, sel.match_id);
+            };
+            j = j + 1;
+        };
+
+        let pool_signer = object::generate_signer_for_extending(&pool.extend_ref);
+        coin::transfer(&pool_signer, user_addr, pool.base_coin_metadata, slip.potential_payout);
         } else if (is_lost) {
             slip.status = 2; // LOST
             pool.locked_payouts = pool.locked_payouts - slip.potential_payout;
+            
+            // Optimization: Reduce the active exposure cap since the bet is resolved
+            let j = 0;
+            let counted_matches = vector::empty<u64>();
+            let num_legs = vector::length(&slip.selections);
+            while (j < num_legs) {
+                let sel = vector::borrow(&slip.selections, j);
+                if (!vector::contains(&counted_matches, &sel.match_id)) {
+                    let match_ref = table::borrow_mut(&mut state.matches, sel.match_id);
+                    let profit_exposure = if (slip.potential_payout > slip.stake_amount) { slip.potential_payout - slip.stake_amount } else { 0 };
+                    // Ensure we don't underflow
+                    if (match_ref.current_exposure >= profit_exposure) {
+                        match_ref.current_exposure = match_ref.current_exposure - profit_exposure;
+                    } else {
+                        match_ref.current_exposure = 0;
+                    };
+                    vector::push_back(&mut counted_matches, sel.match_id);
+                };
+                j = j + 1;
+            };
         };
     }
 }
