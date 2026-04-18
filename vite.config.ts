@@ -35,9 +35,12 @@ export default defineConfig({
       clickUrl: 'https://www.trae.ai/solo?showJoin=1',
       autoTheme: true,
       autoThemeTarget: '#root'
-    }), 
+    }),
     tsconfigPaths()
   ],
+  define: {
+    global: 'globalThis',
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

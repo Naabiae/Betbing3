@@ -1,4 +1,0 @@
-import { RouteParams, SkipRouteResponse } from '../types';
-import { SkipOptions } from '../queries/skip';
-export declare const ETH_MOVE_DENOM = "move/edfcddacac79ab86737a1e9e65805066d8be286a37cb94f4884b892b0e39f954";
-export declare function getLzMessage(route: RouteParams, options?: SkipOptions): Promise<SkipRouteResponse>;
