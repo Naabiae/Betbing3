@@ -17,13 +17,14 @@ InitBet is a trust-minimized sportsbook where match odds updates and match settl
 
 ### How to Run Locally
 
-1. Start your local Initia rollup (Move VM) so it exposes:
+1. Start your local Initia rollup (Move VM) using the provided script:
+   - `bash start_node.sh`
    - RPC: `http://localhost:26657`
    - LCD: `http://localhost:1317`
    - Chain ID: `movegame-1`
-2. Deploy and seed the sportsbook module on your local chain:
+2. Deploy and seed the sportsbook module on your local chain. This script builds the Move contract, publishes it, adds liquidity, fetches live matches using RapidAPI, creates the match on-chain, places a bet, and simulates settlement:
    - `python my-initia-project/e2e_test.py`
-3. Install frontend deps and start the app:
+3. Install frontend dependencies and start the app:
    - `pnpm install`
    - `pnpm dev`
 4. Open the app, connect a wallet via InterwovenKit, enable AutoSign, then place a bet and/or provide liquidity.

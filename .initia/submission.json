@@ -1,13 +1,12 @@
 {
   "project_name": "InitBet",
-  "repo_url": "https://github.com/<org>/<repo>",
-  "commit_sha": "7104ff053601312051128a3b446c2eb7bdb31b9e",
+  "repo_url": "https://github.com/Naabiae/initbet",
+  "commit_sha": "9c83fc483212b998c04c742bc9adb7f902afcc27",
   "rollup_chain_id": "movegame-1",
-  "deployed_address": "0x<replace-with-your-move-module-address>",
+  "deployed_address": "0x4AC3EF7D007CAEFE44AE2E9F4FD2A057612B206D",
   "vm": "move",
   "native_feature": "auto-signing",
   "core_logic_path": "my-initia-project/quadratic_market/sources/sportsbook.move",
   "native_feature_frontend_path": "src/App.tsx",
-  "demo_video_url": "https://youtu.be/<your-demo>"
+  "demo_video_url": "https://youtu.be/your-demo"
 }
-
