@@ -1,0 +1,502 @@
+Getting admin (Validator) address...
+
+Running: minitiad keys show Validator --keyring-backend test --output json
+Admin Bech32: init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg
+Admin Hex: 0x4AC3EF7D007CAEFE44AE2E9F4FD2A057612B206D
+Updating Move.toml with admin address: 0x4AC3EF7D007CAEFE44AE2E9F4FD2A057612B206D
+Compiling Contract...
+
+Running: minitiad move build -p /workspace/my-initia-project/quadratic_market
+Publishing Contract...
+
+Running: minitiad tx move publish /workspace/my-initia-project/quadratic_market/build/quadratic_market/bytecode_modules/sportsbook.mv --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 50000000umin --yes --output json
+Contract published!
+Getting umin metadata address...
+
+Running: minitiad q move view 0x1 coin metadata_address --args ["address:0x1", "string:umin"] --output json
+Umin Metadata: 
+Using fallback metadata address for umin
+Initializing House Pool...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook init_house_pool --args ["address:0x1", "raw_hex:edc8af2863b6aaa48c31b3405b15f2f044acedbf32c89e01fb62ec4e4efd59a7", "u64:500000000000000"] --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM aborted: location=0000000000000000000000000000000000000000000000000000000000000001::object, code=393218 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '271254': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM aborted: location=0000000000000000000000000000000000000000000000000000000000000001::object, code=393218 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '271254': unknown request
+
+Funding Alice and Bob...
+
+Running: minitiad tx bank send Validator init1avnrtnrm6kyr0r6rd5h974qv4m9tffurz294wa 10000000000umin --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 20000umin --yes --output json
+Funded alice (init1avnrtnrm6kyr0r6rd5h974qv4m9tffurz294wa) - Code: 0
+
+Running: minitiad tx bank send Validator init1m76yyatfj3txecdsnf7y9p3kvjalxvvp7kl26t 10000000000umin --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 20000umin --yes --output json
+Funded bob (init1m76yyatfj3txecdsnf7y9p3kvjalxvvp7kl26t) - Code: 0
+Alice adds liquidity...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook add_liquidity --args ["u64:5000000000"] --from alice --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=0, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285140': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=0, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285140': unknown request
+
+Admin creates match...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook create_match --args ["u64:4837469", "u64:1776942578", "vector<u8>:1", "vector<vector<u64>>:15000,30000,40000"] --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=3, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272142': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=3, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272142': unknown request
+
+Bot updates odds for Real Madrid vs Real Oviedo...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook update_odds --args ["u64:4837469", "u8:1", "vector<u64>:15000,30000,40000", "bool:false", "raw_hex:aa8649bcbb4220eab6d4fb9c554d200c660c2135546fcfff3e265b2e45eed7a0dd720876fc8706c29f5e429a0c1b1ff3a9d5ce29c93d7c3b789d84890b2f0702"] --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=15, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272700': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=15, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272700': unknown request
+
+Bob places a bet on Home (1.50)...
+
+Running: minitiad keys show bob --keyring-backend test --output json
+
+Running: minitiad q bank balances init1m76yyatfj3txecdsnf7y9p3kvjalxvvp7kl26t --output json
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook place_bet --args ["vector<u64>:4837469", "vector<u8>:1", "vector<u8>:0", "u64:1000000000"] --from bob --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=6, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285384': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=6, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285384': unknown request
+
+Bot settles match (Winner ID: 0)...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook batch_settle_match --args ["u64:4837469", "vector<u8>:1", "vector<u8>:0", "raw_hex:c3f26136ed59f0dad733914e28c0fd1c4e09be686c35346fb8ec0faf5503cfa947b328222bd9cbc6b312de3764d012581af362f29245d1752a62d09a53117709"] --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=1, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272488': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=1, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '272488': unknown request
+
+Bob claims payout...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook claim_payout --args ["u64:2"] --from bob --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=2, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285198': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=2, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285198': unknown request
+
+
+Running: minitiad q bank balances init1m76yyatfj3txecdsnf7y9p3kvjalxvvp7kl26t --output json
+Bob balance before bet: 20000000000
+Bob balance after claim: 20000000000
+Alice requests withdraw...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook request_withdraw --args ["u64:5000000000"] --from alice --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=10, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285168': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=10, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '285168': unknown request
+
+Admin processes withdrawal...
+
+Running: minitiad tx move execute init1ftp77lgq0jh0u39w9605l54q2asjkgrdcdy8hg sportsbook process_withdrawals --args ["u64:10"] --from Validator --keyring-backend test --chain-id movegame-1 --gas auto --gas-adjustment 1.5 --fees 2000000umin --yes --output json
+Error: Error: rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=9, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '271748': unknown request
+Usage:
+  minitiad tx move execute [module address] [module name] [function name] [flags]
+
+Aliases:
+  execute, ex, e
+
+Flags:
+  -a, --account-number uint      The account number of the signing account (offline mode only)
+      --args string              The array of BCS arguments for the move function.
+                                 Example: '["address:0x1", "bool:true", "u8:0x01", "u128:1234", "vector<u32>:a,b,c,d"]'
+      --aux                      Generate aux signer data instead of sending a tx
+  -b, --broadcast-mode string    Transaction broadcasting mode (sync|async) (default "sync")
+      --chain-id string          The network chain ID
+      --dry-run                  ignore the --gas flag and perform a simulation of a transaction, but don't broadcast it (when enabled, the local Keybase is not accessible)
+      --fee-granter string       Fee granter grants fees for the transaction
+      --fee-payer string         Fee payer pays fees for the transaction instead of deducting from the signer
+      --fees string              Fees to pay along with transaction; eg: 10uatom
+      --from string              Name or address of private key with which to sign
+      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically. Note: "auto" option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of "fees". (default 200000)
+      --gas-adjustment float     adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)
+      --gas-prices string        Gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
+      --generate-only            Build an unsigned transaction and write it to STDOUT (when enabled, the local Keybase only accessed when providing a key name)
+  -h, --help                     help for execute
+      --keyring-backend string   Select keyring's backend (os|file|kwallet|pass|test|memory) (default "os")
+      --keyring-dir string       The client Keyring directory; if omitted, the default 'home' directory will be used
+      --ledger                   Use a connected Ledger device
+      --node string              <host>:<port> to CometBFT rpc interface for this chain (default "tcp://localhost:26657")
+      --note string              Note to add a description to the transaction (previously --memo)
+      --offline                  Offline mode (does not allow any online functionality)
+  -o, --output string            Output format (text|json) (default "json")
+  -s, --sequence uint            The sequence number of the signing account (offline mode only)
+      --sign-mode string         Choose sign mode (direct|amino-json|direct-aux|textual), this is an advanced feature
+      --timeout-height uint      Set a block timeout height to prevent the tx from being committed past a certain height
+      --tip string               Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator
+      --type-args string         The array of type arguments for the move function.
+                                 ex) '["0x1::BasicCoin::getBalance<u8>", "0x1::BasicCoin::getBalance<u64>"]'
+  -y, --yes                      Skip tx broadcasting prompt confirmation
+
+Global Flags:
+      --allow-queued        attach queued-tx extension option to allow future nonce tx queuing
+      --home string         directory for config and data (default "/root/.minitia")
+      --log_format string   The logging format (json|plain) (default "plain")
+      --log_level string    The logging level (trace|debug|info|warn|error|fatal|panic|disabled or '*:<level>,<key>:<level>') (default "info")
+      --log_no_color        Disable colored logs
+      --trace               print out full stack trace on errors
+
+rpc error: code = Unknown desc = rpc error: code = Unknown desc = failed to execute message; message index: 0: VM failure: status MISSING_DATA of type Execution with message Failed to borrow global resource from 0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d, location=0000000000000000000000004ac3ef7d007caefe44ae2e9f4fd2a057612b206d::sportsbook, function=9, code_offset=1 [cosmos/cosmos-sdk@v0.50.14/baseapp/baseapp.go:1102] with gas used: '271748': unknown request
+
+End-to-End Test Complete!

@@ -99,7 +99,7 @@ def main():
     metadata_addr = "0x1"
     if out:
         data = json.loads(out)
-        metadata_val = data.get("data", ["0x1"])[0]
+        metadata_val = data.get("data", "\"0x1\"")
         metadata_addr = metadata_val.replace('"', '')
         print(f"Umin Metadata: {metadata_addr}")
     
@@ -167,8 +167,8 @@ def main():
     tx_execute("create_match", [
         f"u64:{match_id}",
         f"u64:{start_time}",
-        "vector<u8>:1", # Market 1
-        "vector<vector<u64>>:15000,30000,40000"
+        "vector<u8>:1",
+        "vector<u64>:15000,30000,40000"
     ], "Validator", admin_addr)
 
     # 6. Update Odds
@@ -209,7 +209,7 @@ def main():
 
     # 9. Claim Payout (Bob)
     print("Bob claims payout...")
-    tx_execute("claim_payout", ["u64:2"], "bob", admin_addr)
+    tx_execute("claim_payout", ["u64:1"], "bob", admin_addr)
 
     bob_bal_after = query_balance(bob_addr)
     print(f"Bob balance before bet: {bob_bal_before}")
@@ -217,7 +217,7 @@ def main():
     
     # 10. LP Requests Withdraw and Admin Processes
     print("Alice requests withdraw...")
-    tx_execute("request_withdraw", ["u64:5000000000"], "alice", admin_addr) # all shares
+    tx_execute("request_withdraw", ["u64:4999999000"], "alice", admin_addr) # all shares minus 1000 minimum liquidity
     print("Admin processes withdrawal...")
     tx_execute("process_withdrawals", ["u64:10"], "Validator", admin_addr)
 

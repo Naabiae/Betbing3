@@ -1,14 +1,20 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useAddress, useWallet } from '@initia/react-wallet-widget';
+import { useInterwovenKit } from '@initia/interwovenkit-react';
 import Home from './pages/Home';
 import Portfolio from './pages/Portfolio';
 import Pool from './pages/Pool';
 import { Wallet } from 'lucide-react';
 
+const truncateMiddle = (value: string, head = 6, tail = 4) => {
+  if (!value) return '';
+  if (value.length <= head + tail) return value;
+  return `${value.slice(0, head)}...${value.slice(-tail)}`;
+};
+
 function Navigation() {
   const location = useLocation();
-  const address = useAddress();
-  const { view } = useWallet();
+  const { isConnected, initiaAddress, username, openConnect, openWallet, openBridge, autoSign } =
+    useInterwovenKit();
 
   const navItems = [
     { path: '/', label: 'MATCHES' },
@@ -52,15 +58,34 @@ function Navigation() {
           {/* Wallet Button */}
           <div className="flex items-center">
             <button 
-              onClick={view}
+              onClick={isConnected ? openWallet : openConnect}
               className="flex items-center space-x-2 bg-green-400 hover:bg-green-300 dark:bg-green-500 dark:hover:bg-green-400 text-black border-4 border-black px-4 py-2 font-bold uppercase transition-transform hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,1)] active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
             >
               <Wallet className="w-5 h-5" strokeWidth={3} />
               <span>
-                {address 
-                  ? `${address.slice(0, 6)}...${address.slice(-4)}` 
+                {isConnected
+                  ? truncateMiddle(username ?? initiaAddress)
                   : 'CONNECT WALLET'}
               </span>
+            </button>
+            <button
+              onClick={() => openBridge()}
+              className="ml-3 bg-white dark:bg-zinc-950 text-black dark:text-white border-4 border-black dark:border-white px-3 py-2 font-bold uppercase transition-transform hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_rgba(255,255,255,1)] active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_rgba(0,0,0,1)]"
+              type="button"
+            >
+              BRIDGE
+            </button>
+            <button
+              onClick={() =>
+                autoSign.isEnabledByChain['movegame-1']
+                  ? autoSign.disable('movegame-1')
+                  : autoSign.enable('movegame-1')
+              }
+              disabled={autoSign.isLoading}
+              className="ml-3 bg-black dark:bg-white text-white dark:text-black border-4 border-black dark:border-white px-3 py-2 font-bold uppercase transition-transform hover:-translate-y-1 hover:-translate-x-1 shadow-[4px_4px_0px_rgba(0,255,102,1)] active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_rgba(0,255,102,1)] disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+            >
+              {autoSign.isEnabledByChain['movegame-1'] ? 'AUTOSIGN ON' : 'AUTOSIGN'}
             </button>
           </div>
         </div>

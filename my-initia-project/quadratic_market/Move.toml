@@ -4,10 +4,10 @@ version = "0.0.0"
 
 [addresses]
 initia_std = "0x1"
-quadratic_market = "_"
+quadratic_market = "0x4AC3EF7D007CAEFE44AE2E9F4FD2A057612B206D"
 
 [dev-addresses]
-quadratic_market = "0x42"
+quadratic_market = "0x4AC3EF7D007CAEFE44AE2E9F4FD2A057612B206D"
 
 [dependencies]
 InitiaStdlib = { git = "https://github.com/initia-labs/movevm.git", subdir = "precompile/modules/initia_stdlib", rev = "main" }

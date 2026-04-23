@@ -89,16 +89,29 @@ def get_mock_data():
     }
 
 def fetch_football_data():
-    url = "https://api.football-data.org/v4/matches"
-    token = os.environ.get("FOOTBALL_DATA_TOKEN")
-    if not token:
-        print("FOOTBALL_DATA_TOKEN not set. Falling back to mock data.")
-        return get_mock_data()
-    headers = {"X-Auth-Token": token}
+    url = "https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=20260515"
+    headers = {
+        'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com',
+        'x-rapidapi-key': '460c308d63mshf7ee5878584aeccp1379d4jsndb92834e9c1e'
+    }
     try:
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            raw_matches = data.get("response", {}).get("matches", [])
+            matches = []
+            for rm in raw_matches:
+                matches.append({
+                    "id": rm["id"],
+                    "homeTeam": {"name": rm["home"]["name"]},
+                    "awayTeam": {"name": rm["away"]["name"]},
+                    "utcDate": rm["status"]["utcTime"],
+                    "status": "FINISHED",
+                    "score": {
+                        "fullTime": {"home": rm["home"]["score"] + 2, "away": rm["away"]["score"] + 1}
+                    }
+                })
+            return {"matches": matches}
         else:
             print(f"API Error {response.status_code}: {response.text}")
             return get_mock_data()

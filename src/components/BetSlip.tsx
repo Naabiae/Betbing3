@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Receipt, CheckCircle, Loader2 } from 'lucide-react';
 import { formatOdds } from '../lib/mockData';
 import { useSportsbook } from '../hooks/useSportsbook';
-import { useAddress } from '@initia/react-wallet-widget';
+import { useInterwovenKit } from '@initia/interwovenkit-react';
 
 export default function BetSlip() {
   const { selections, stake, setStake, removeSelection, clear, isOpen, setIsOpen } = useBetSlipStore();
   const { placeBet, isPlacingBet } = useSportsbook();
-  const address = useAddress();
+  const { isConnected, initiaAddress, openConnect } = useInterwovenKit();
 
   if (selections.length === 0) return null;
 
@@ -17,7 +17,7 @@ export default function BetSlip() {
   const potentialPayout = stake * totalOdds;
 
   const handlePlaceBet = async () => {
-    if (!address) {
+    if (!initiaAddress) {
       alert("Please connect your wallet first.");
       return;
     }
@@ -118,8 +118,8 @@ export default function BetSlip() {
               </div>
 
               <button 
-                onClick={handlePlaceBet}
-                disabled={isPlacingBet || !address}
+                onClick={isConnected ? handlePlaceBet : openConnect}
+                disabled={isPlacingBet}
                 className="w-full bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-widest py-4 border-2 border-black dark:border-white shadow-[4px_4px_0px_rgba(0,255,102,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[0px_0px_0px_rgba(0,255,102,1)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isPlacingBet ? (
@@ -130,7 +130,7 @@ export default function BetSlip() {
                 ) : (
                   <>
                     <CheckCircle className="w-6 h-6" />
-                    <span>{address ? 'Place Bet' : 'Connect Wallet'}</span>
+                    <span>{isConnected ? 'Place Bet' : 'Connect Wallet'}</span>
                   </>
                 )}
               </button>
