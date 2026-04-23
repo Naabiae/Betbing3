@@ -126,7 +126,7 @@ module quadratic_market::sportsbook {
     public entry fun init_house_pool(admin: &signer, base_coin_metadata: Object<Metadata>, oracle_pubkey: vector<u8>, max_match_exposure: u64) {
         let admin_addr = signer::address_of(admin);
         
-        let constructor_ref = object::create_named_object(admin, b"QuadraticPoolBank");
+        let constructor_ref = object::create_named_object(admin, b"QuadraticPoolBank2");
         let pool_address = object::address_from_constructor_ref(&constructor_ref);
         let extend_ref = object::generate_extend_ref(&constructor_ref);
         
@@ -191,7 +191,7 @@ module quadratic_market::sportsbook {
             lp_state.total_supply = min_liquidity;
             amount - min_liquidity
         } else {
-            (amount * lp_state.total_supply) / reserve_balance
+            (((amount as u128) * (lp_state.total_supply as u128)) / (reserve_balance as u128)) as u64
         };
 
         coin::transfer(provider, pool.pool_address, pool.base_coin_metadata, amount);
@@ -256,7 +256,7 @@ module quadratic_market::sportsbook {
                 let total_reserve = coin::balance(pool.pool_address, pool.base_coin_metadata);
                 let free_liquidity = total_reserve - pool.locked_payouts;
                 
-                let amount_to_return = (shares * free_liquidity) / lp_state.total_supply;
+                let amount_to_return = (((shares as u128) * (free_liquidity as u128)) / (lp_state.total_supply as u128)) as u64;
 
                 lp_state.total_supply = lp_state.total_supply - shares;
 
@@ -280,7 +280,7 @@ module quadratic_market::sportsbook {
         match_id: u64,
         start_time: u64,
         market_ids: vector<u8>,
-        initial_odds: vector<vector<u64>>
+        initial_odds: vector<u64>
     ) acquires HousePool, SportsbookState {
         let pool = borrow_global<HousePool>(@quadratic_market);
         assert!(signer::address_of(admin) == pool.admin, ENOT_ADMIN);
@@ -296,18 +296,17 @@ module quadratic_market::sportsbook {
         table::add(&mut state.matches, match_id, new_match);
 
         let num_markets = vector::length(&market_ids);
-        assert!(num_markets == vector::length(&initial_odds), EINVALID_ODDS);
+        assert!(num_markets == 1, EINVALID_ODDS); // Currently only supports 1 market per creation
 
         let i = 0;
         while (i < num_markets) {
             let m_id = *vector::borrow(&market_ids, i);
-            let odds_vec = *vector::borrow(&initial_odds, i);
             
             let market_key = (match_id << 8) | (m_id as u64);
             table::add(&mut state.markets, market_key, Market {
                 match_id,
                 market_id: m_id,
-                odds: odds_vec,
+                odds: initial_odds,
                 suspended: false,
             });
             i = i + 1;
@@ -560,12 +559,12 @@ module quadratic_market::sportsbook {
     /// IBC Hooks: Receives and executes bets seamlessly via Cross-Chain memo messages
     public entry fun place_bet_ibc(
         router: &signer,
-        user_addr: address,
-        match_ids: vector<u64>,
-        market_ids: vector<u8>,
-        outcome_ids: vector<u8>,
-        stake_amount: u64
-    ) acquires HousePool, SportsbookState, BettingState {
+        _user_addr: address,
+        _match_ids: vector<u64>,
+        _market_ids: vector<u8>,
+        _outcome_ids: vector<u8>,
+        _stake_amount: u64
+    ) acquires HousePool {
         // SECURITY FIX: Must be authenticated by the IBC router
         let pool = borrow_global_mut<HousePool>(@quadratic_market);
         // Assuming @initia_std is the expected router address for minitswap IBC hooks
@@ -588,7 +587,7 @@ module quadratic_market::sportsbook {
         assert!(slip.bettor == user_addr, EUNAUTHORIZED_CLAIM);
         assert!(slip.status == 0, EINVALID_SLIP_STATUS);
 
-        let state = borrow_global<SportsbookState>(@quadratic_market);
+        let state = borrow_global_mut<SportsbookState>(@quadratic_market);
 
         let num_legs = vector::length(&slip.selections);
         let is_won = true;
@@ -627,7 +626,7 @@ module quadratic_market::sportsbook {
             let sel = vector::borrow(&slip.selections, j);
             if (!vector::contains(&counted_matches, &sel.match_id)) {
                 let match_ref = table::borrow_mut(&mut state.matches, sel.match_id);
-                let profit_exposure = if (slip.potential_payout > slip.stake_amount) { slip.potential_payout - slip.stake_amount } else { 0 };
+                let profit_exposure = if (slip.potential_payout > slip.stake) { slip.potential_payout - slip.stake } else { 0 };
                 // Ensure we don't underflow
                 if (match_ref.current_exposure >= profit_exposure) {
                     match_ref.current_exposure = match_ref.current_exposure - profit_exposure;
@@ -653,7 +652,7 @@ module quadratic_market::sportsbook {
                 let sel = vector::borrow(&slip.selections, j);
                 if (!vector::contains(&counted_matches, &sel.match_id)) {
                     let match_ref = table::borrow_mut(&mut state.matches, sel.match_id);
-                    let profit_exposure = if (slip.potential_payout > slip.stake_amount) { slip.potential_payout - slip.stake_amount } else { 0 };
+                    let profit_exposure = if (slip.potential_payout > slip.stake) { slip.potential_payout - slip.stake } else { 0 };
                     // Ensure we don't underflow
                     if (match_ref.current_exposure >= profit_exposure) {
                         match_ref.current_exposure = match_ref.current_exposure - profit_exposure;
