@@ -1,0 +1,37 @@
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@cosmjs/amino": "^0.36.2",
+    "@cosmjs/crypto": "^0.36.2",
+    "@cosmjs/encoding": "^0.36.2",
+    "@cosmjs/stargate": "^0.36.2",
+    "@cosmjs/tendermint-rpc": "^0.36.2",
+    "@initia/interwovenkit-react": "^2.6.0",
+    "@initia/utils": "^2.0.0",
+    "@react-native-async-storage/async-storage": "^1.24.0",
+    "@tanstack/react-query": "^5.87.4",
+    "buffer": "^6.0.3",
+    "cosmjs-types": "^0.10.0",
+    "ky": "^1.7.2",
+    "next": "^15.5.3",
+    "pino-pretty": "^10.3.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "viem": "^2.37.6",
+    "wagmi": "^2.16.9"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/node": "^24.5.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.3",
+    "typescript": "^5.9.2"
+  }
+}
