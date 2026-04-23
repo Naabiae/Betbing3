@@ -24,6 +24,8 @@ InitBet is a trust-minimized sportsbook where match odds updates and match settl
    - Chain ID: `movegame-1`
 2. Deploy and seed the sportsbook module on your local chain. This script builds the Move contract, publishes it, adds liquidity, fetches live matches using RapidAPI, creates the match on-chain, places a bet, and simulates settlement:
    - `python my-initia-project/e2e_test.py`
+   - For a multi-bet slip (parlay) test involving two matches and two bettors, run:
+     `python my-initia-project/e2e_multibet_test.py`
 3. Install frontend dependencies and start the app:
    - `pnpm install`
    - `pnpm dev`
